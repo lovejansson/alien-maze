@@ -1,0 +1,14 @@
+Det ska finnas juveler i mazen som växer fram randomly. 
+När spriten har hittat en juvel så ska den börja gå mot nästa juvel 
+
+animeringen flimrar......
+
+Jag får ha något state av juveler som ser till så att det alltid växer fram en ny när en blir tagen. 
+
+Vill ha en uppräkning på hur många den har hittat. 
+
+Pixel art: 
+
+Knippen av juveler
+Animation då juvelen växer 
+Kanske en animation när spriten hittar en juvel för att visa att den är glad

@@ -94,3 +94,18 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+
+#section-maze {
+  position: relative;
+}
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#sprite {
+  z-index: 10;
+}

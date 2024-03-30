@@ -1,3 +1,5 @@
+import { paintTile } from "./canvas"
+
 export default class AnimatedTile {
 
     /**
@@ -70,7 +72,7 @@ export default class AnimatedTile {
                 // Switch tile every speed ms
                 if (this._currentMillisecondsDiff >= this._speed) {
 
-                    paintTile(this._ctx, this._row, this._col, this._tiles[this._currentTileIdx]);
+                    paintTile(this._ctx, this._row * 64, this._col * 64, this._tiles[this._currentTileIdx]);
                     this._currentTileIdx = this._currentTileIdx === this._tiles.length - 1 ? 0 : this._currentTileIdx += 1;
                     this._currentMillisecondsDiff = 0;
                 }
@@ -80,19 +82,4 @@ export default class AnimatedTile {
         });
     }
 
-}
-
-/**
- * Draws a tile on the canvas 
- * 
- * @param {number} row 
- * @param {number} col
- * @param {number} tile idx to tile in state.tiles
- */
-function paintTile(ctx, row, col, tile) {
-    const tileSize = 64;
-    const image = new Image(tileSize, tileSize);
-    image.src = tile;
-    ctx.clearRect(col * tileSize + 0.5, row * tileSize + 0.5, tileSize, tileSize)
-    ctx.drawImage(image, col * tileSize + 0.5, row * tileSize + 0.5, tileSize, tileSize);
 }

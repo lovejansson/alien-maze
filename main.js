@@ -1,6 +1,8 @@
 import './style.css'
 import tilemapJSON from "./vanilla_tilemap.json";
 import AnimatedTile from './animatedTile';
+import { getRandomRoadCell, bfs } from './maze';
+import Sprite from "./sprite"
 
 app();
 
@@ -12,16 +14,21 @@ app();
  */
 
 function app() {
-    const canvas = document.querySelector("canvas");
+    const canvasTilemap = document.getElementById("tilemap-static");
+    const canvasSprite = document.getElementById("sprite");
 
-    if (!canvas) throw "Missing DOM: canvas";
+    if (!canvasTilemap || !canvasSprite) throw "Missing DOM: canvas";
 
-    canvas.width = tilemapJSON.width;
-    canvas.height = tilemapJSON.height;
+    canvasTilemap.width = tilemapJSON.width;
+    canvasTilemap.height = tilemapJSON.height;
+    canvasSprite.width = tilemapJSON.width;
+    canvasSprite.height = tilemapJSON.height;
 
-    const ctx = canvas.getContext("2d");
+    const ctxTilemap = canvasTilemap.getContext("2d");
+    const ctxSprite = canvasSprite.getContext("2d");
 
-    ctx.imageSmoothingEnabled = false;
+    ctxTilemap.imageSmoothingEnabled = false;
+    ctxSprite.imageSmoothingEnabled = false;
 
     // Draw static tilemap image
     const image = new Image();
@@ -29,42 +36,83 @@ function app() {
     image.src = tilemapJSON.tilemap;
 
     image.addEventListener("load", () => {
-        ctx.drawImage(image, 0, 0);
-    });
+        ctxTilemap.drawImage(image, 0, 0);
+        // Start animations
 
-    // Start animations
+        for (let r = 0; r < tilemapJSON.animationmap.length; ++r) {
+            for (let c = 0; c < tilemapJSON.animationmap[0].length; ++c) {
 
-    for (let r = 0; r < tilemapJSON.animationmap.length; ++r) {
-        for (let c = 0; c < tilemapJSON.animationmap[0].length; ++c) {
+                if (tilemapJSON.animationmap[r][c] !== null) {
 
-            if (tilemapJSON.animationmap[r][c] !== null) {
+                    const animation = tilemapJSON.animations[tilemapJSON.animationmap[r][c]];
 
-                const animation = tilemapJSON.animations[tilemapJSON.animationmap[r][c]];
+                    const animatedTile = new AnimatedTile(ctx, animation.tiles.map(t => tilemapJSON.tiles[t]), animation.duration, r, c);
 
-                const animatedTile = new AnimatedTile(ctx, animation.tiles.map(t => tilemapJSON.tiles[t]), animation.duration, r, c);
+                    animatedTile.run();
 
-                animatedTile.run();
-
+                }
             }
         }
-    }
 
-    // Start animation of sprite 
+        const objectmap = tilemapJSON.objectmap;
+
+        const roadGraph = createRoadGraph(objectmap);
+
+        const sprite = new Sprite(ctxSprite, roadGraph, {
+            north: ["/assets/sprite-back0.png", "/assets/sprite-back1.png", "/assets/sprite-back0.png", "/assets/sprite-back2.png"],
+            east: ["/assets/sprite-right0.png", "/assets/sprite-right1.png", "/assets/sprite-right0.png", "/assets/sprite-right2.png"],
+            south: ["/assets/sprite-front0.png", "/assets/sprite-front1.png", "/assets/sprite-front0.png", "/assets/sprite-front2.png"],
+            west: ["/assets/sprite-left0.png", "/assets/sprite-left1.png", "/assets/sprite-left0.png", "/assets/sprite-left2.png"]
+        });
+        sprite.init();
+
+        run();
+
+        function run() {
+            requestAnimationFrame((elapsed) => {
+                console.log("RUNNING")
+                sprite.update(elapsed);
+                sprite.draw();
+                run();
+            });
+        }
+    });
 }
 
 
 
-/**
- * Draws a tile on the canvas 
- * 
- * @param {number} row 
- * @param {number} col
- * @param {number} tile idx to tile in state.tiles
- */
-function paintTile(ctx, row, col, tile) {
-    const tileSize = 64;
-    const image = new Image(tileSize, tileSize);
-    image.src = tile;
-    ctx.clearRect(col * tileSize + 0.5, row * tileSize + 0.5, tileSize, tileSize)
-    ctx.drawImage(image, col * tileSize + 0.5, row * tileSize + 0.5, tileSize, tileSize);
+function createRoadGraph(objectmap) {
+    const graph = new Map();
+
+    for (let r = 0; r < objectmap.length; ++r) {
+        for (let c = 0; c < objectmap[0].length; ++c) {
+            if (objectmap[r][c] && objectmap[r][c].name === "road") {
+                const connectedNeighbours = getRoadCellNeighbours(objectmap, r, c);
+                graph.set(`${r}:${c}`, connectedNeighbours);
+            }
+        }
+    }
+
+    return graph;
+}
+
+function getRoadCellNeighbours(objectmap, r, c) {
+    const n = [];
+
+    if (r !== 0 && objectmap[r - 1][c] && objectmap[r - 1][c].name === "road") {
+        n.push({ row: r - 1, col: c })
+    }
+
+    if (r !== objectmap.length - 1 && objectmap[r + 1][c] && objectmap[r + 1][c].name === "road") {
+        n.push({ row: r + 1, col: c })
+    }
+
+    if (c !== 0 && objectmap[r][c - 1] && objectmap[r][c - 1].name === "road") {
+        n.push({ row: r, col: c - 1 })
+    }
+
+    if (c !== objectmap[0].length && objectmap[r][c + 1] && objectmap[r][c + 1].name === "road") {
+        n.push({ row: r, col: c + 1 })
+    }
+    return n;
 }
