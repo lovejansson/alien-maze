@@ -1,10 +1,7 @@
-Det ska finnas juveler i mazen som växer fram randomly. 
-När spriten har hittat en juvel så ska den börja gå mot nästa juvel 
 
-animeringen flimrar......
 
-Jag får ha något state av juveler som ser till så att det alltid växer fram en ny när en blir tagen. 
 
+Inte ha juvelen som målet utan det spwanas ut random och om en krock sker så får alien månstenen 
 Vill ha en uppräkning på hur många den har hittat. 
 
 Pixel art: 

@@ -1,8 +1,11 @@
 import './style.css'
 import tilemapJSON from "./vanilla_tilemap.json";
 import AnimatedTile from './animatedTile';
-import { getRandomRoadCell, bfs } from './maze';
 import Sprite from "./sprite"
+import MazePath from './MazePath';
+import * as array from "./array"
+import MoonRock from './MoonRock';
+import { getRandomRoadCell } from './maze';
 
 app();
 
@@ -13,7 +16,7 @@ app();
  * @property {number} duration duration in ms 
  */
 
-function app() {
+async function app() {
     const canvasTilemap = document.getElementById("tilemap-static");
     const canvasSprite = document.getElementById("sprite");
 
@@ -35,7 +38,7 @@ function app() {
 
     image.src = tilemapJSON.tilemap;
 
-    image.addEventListener("load", () => {
+    image.addEventListener("load", async() => {
         ctxTilemap.drawImage(image, 0, 0);
         // Start animations
 
@@ -46,7 +49,9 @@ function app() {
 
                     const animation = tilemapJSON.animations[tilemapJSON.animationmap[r][c]];
 
-                    const animatedTile = new AnimatedTile(ctx, animation.tiles.map(t => tilemapJSON.tiles[t]), animation.duration, r, c);
+                    const animationImages = await loadAnimationAssets(animation.tiles.map(t => tilemapJSON.tiles[t]))
+
+                    const animatedTile = new AnimatedTile(ctxTilemap, animationImages, animation.duration, r, c);
 
                     animatedTile.run();
 
@@ -54,32 +59,183 @@ function app() {
             }
         }
 
+        console.dir(tilemapJSON.animationmap);
+
         const objectmap = tilemapJSON.objectmap;
 
         const roadGraph = createRoadGraph(objectmap);
 
-        const sprite = new Sprite(ctxSprite, roadGraph, {
-            north: ["/assets/sprite-back0.png", "/assets/sprite-back1.png", "/assets/sprite-back0.png", "/assets/sprite-back2.png"],
-            east: ["/assets/sprite-right0.png", "/assets/sprite-right1.png", "/assets/sprite-right0.png", "/assets/sprite-right2.png"],
-            south: ["/assets/sprite-front0.png", "/assets/sprite-front1.png", "/assets/sprite-front0.png", "/assets/sprite-front2.png"],
-            west: ["/assets/sprite-left0.png", "/assets/sprite-left1.png", "/assets/sprite-left0.png", "/assets/sprite-left2.png"]
-        });
+        const mazePath = new MazePath(roadGraph);
+
+        mazePath.init();
+
+        const spriteAssets = await loadSpriteAssets()
+
+        const sprite = new Sprite(ctxSprite, mazePath, spriteAssets);
+
         sprite.init();
+
+        let moonRocks = [];
+
+        let collectedMoonRocks = 0;
+
+        const countDiv = document.getElementById("count");
+
+        if (!countDiv) throw "Missing DOM: count div"
+
+        const moonRockAssets = await loadMoonRockAssets();
+
+
+        for (let i = 0; i < 50; ++i) {
+            const randomImage = moonRockAssets.random();
+            const pos = getRandomRoadCell(roadGraph);
+
+            const moonRock = new MoonRock(ctxSprite, { x: pos.col * 64, y: pos.row * 64 }, randomImage);
+            moonRocks.push(moonRock);
+
+        }
 
         run();
 
         function run() {
             requestAnimationFrame((elapsed) => {
-                console.log("RUNNING")
+                ctxSprite.clearRect(0, 0, tilemapJSON.width, tilemapJSON.height);
                 sprite.update(elapsed);
+
+                const { countRemoved, updatedMoonRocks } = moonRocks.reduce((acc, curr) => {
+                    if (isColliding(sprite.pos, curr.pos)) {
+                        acc.countRemoved++;
+
+                    } else {
+                        acc.updatedMoonRocks.push(curr);
+                    }
+
+                    return acc;
+
+                }, { countRemoved: 0, updatedMoonRocks: [] });
+
+                for (let i = 0; i < countRemoved; ++i) {
+                    const randomImage = moonRockAssets.random();
+                    const pos = getRandomRoadCell(roadGraph);
+                    const moonRock = new MoonRock(ctxSprite, { x: pos.col * 64, y: pos.row * 64 }, randomImage);
+                    moonRocks.push(moonRock);
+
+                }
+
+                moonRocks = updatedMoonRocks;
+
+                collectedMoonRocks += countRemoved;
+
+                countDiv.children.item(1).textContent = collectedMoonRocks;
+
+                for (const moonRock of moonRocks) {
+                    moonRock.draw();
+                }
+
                 sprite.draw();
+
                 run();
             });
         }
     });
 }
 
+async function loadAnimationAssets(assets) {
+    const images = [];
 
+    for (const asset of assets) {
+
+        images.push(new Promise((resolve, reject) => {
+            const image = new Image();
+            image.src = asset;
+
+            image.addEventListener("load", () => {
+                resolve(image);
+            });
+
+            image.addEventListener("error", () => {
+                reject();
+            });
+        }));
+    }
+
+    return await Promise.all(images);
+
+}
+
+async function loadSpriteAssets() {
+    const assets = {
+        north: ["/assets/sprite-back0.png", "/assets/sprite-back1.png", "/assets/sprite-back0.png", "/assets/sprite-back2.png"],
+        east: ["/assets/sprite-right0.png", "/assets/sprite-right1.png", "/assets/sprite-right0.png", "/assets/sprite-right2.png"],
+        south: ["/assets/sprite-front0.png", "/assets/sprite-front1.png", "/assets/sprite-front0.png", "/assets/sprite-front2.png"],
+        west: ["/assets/sprite-left0.png", "/assets/sprite-left1.png", "/assets/sprite-left0.png", "/assets/sprite-left2.png"]
+    };
+
+    const images = {
+        north: [],
+        east: [],
+        south: [],
+        west: []
+    }
+
+    for (const dir in assets) {
+        for (const asset of assets[dir]) {
+            const image = await new Promise((resolve, reject) => {
+                const image = new Image();
+                image.src = asset;
+
+                image.addEventListener("load", () => {
+                    resolve(image);
+                });
+
+                image.addEventListener("error", () => {
+                    reject()
+                });
+            });
+
+            images[dir].push(image);
+        }
+    }
+
+    return images;
+}
+
+/**
+ * 
+ * @returns {Promise<Image[]>}
+ */
+async function loadMoonRockAssets() {
+    const assets = ["/assets/rock0.png", "/assets/rock1.png", "/assets/rock2.png", "/assets/rock3.png"];
+    const images = [];
+
+    for (const asset of assets) {
+
+        images.push(new Promise((resolve, reject) => {
+            const image = new Image();
+            image.src = asset;
+
+            image.addEventListener("load", () => {
+                resolve(image);
+            });
+
+            image.addEventListener("error", () => {
+                reject();
+            });
+        }));
+    }
+
+    return await Promise.all(images);
+}
+
+/**
+ * 
+ * @param {{x: number, y: number}} pos1 
+ * @param {x: number, y: number} pos2 
+ * @returns {boolean}
+ */
+function isColliding(pos1, pos2) {
+    return Math.abs(pos1.x - pos2.x) < 42 && Math.abs(pos1.y - pos2.y) < 42
+}
 
 function createRoadGraph(objectmap) {
     const graph = new Map();

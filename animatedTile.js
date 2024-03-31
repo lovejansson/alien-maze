@@ -8,7 +8,7 @@ export default class AnimatedTile {
     _ctx;
 
     /**
-     * @type {string[]}
+     * @type {Image[]}
      */
     _tiles;
 
@@ -72,7 +72,9 @@ export default class AnimatedTile {
                 // Switch tile every speed ms
                 if (this._currentMillisecondsDiff >= this._speed) {
 
-                    paintTile(this._ctx, this._row * 64, this._col * 64, this._tiles[this._currentTileIdx]);
+
+
+                    paintTile(this._ctx, this._col * 64, this._row * 64, this._tiles[this._currentTileIdx]);
                     this._currentTileIdx = this._currentTileIdx === this._tiles.length - 1 ? 0 : this._currentTileIdx += 1;
                     this._currentMillisecondsDiff = 0;
                 }

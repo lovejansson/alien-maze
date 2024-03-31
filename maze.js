@@ -19,8 +19,8 @@ export function bfs(startCell, endCell, graph) {
 
             // Found end cell so we create the path to it
             if (n.row === endCell.row && n.col === endCell.col) {
-                prev.set(`${n.row}:${n.col}`, currentCell);
 
+                prev.set(`${n.row}:${n.col}`, currentCell);
                 return reconstructPath(prev, endCell);
 
                 // Add all non visited neighbours to the queue

@@ -1,18 +1,8 @@
-import { getRandomRoadCell, bfs } from './maze';
 import { paintTile } from './canvas';
 import * as array from "./array"
+import MazePath from './MazePath';
 
 export default class Sprite {
-
-    /**
-     * @typedef Direction 
-     * @type {"north" | "east" | "south" | "west"}
-     */
-
-    /**
-     * @typedef Cell
-     * @type {{row: number, col: number}}
-     */
 
     /**
      * @type {CanvasRenderingContext2D}
@@ -20,49 +10,21 @@ export default class Sprite {
     _ctx;
 
     /**
-     * @type {Map<string, Cell[]>}
-     */
-    _roadGraph;
-
-    /**
-     * @type {{[Direction]: string[]}}
+     * @type {{[Direction]: Image[]}}
      */
     _tiles;
 
     /**
      * @type {number}
      */
-    _currentImageIdx;
+    _currentTileIdx;
+
 
     /**
      * @type {{x: number, y: number}}
      */
     _currentPos;
 
-    /**
-     * @type {Cell[]}
-     */
-    _currentPath;
-
-    /**
-     * @type {number}
-     */
-    _currentPathIdx;
-
-    /**
-     * @type {Direction}
-     */
-    _currentDirection;
-
-    /**
-     * @type {Direction}
-     */
-    _prevDirection;
-
-    /**
-     * @type {number}
-     */
-    _currentTileIdx;
 
     /**
      * @type {number}
@@ -74,162 +36,104 @@ export default class Sprite {
      */
     _currentMillisecondsDiff;
 
+    /** 
+     * @type {MazePath}
+     */
+    _mazePath;
 
     /**
-     * 
-     * @param {Map<string, Cell[]>} roadGraph 
+     * @type {number}
      */
-    constructor(ctx, roadGraph, tiles) {
-        this._roadGraph = roadGraph;
-        this._tiles = tiles;
+    _numberOfMoonRocks;
+
+
+    /**
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {MazePath} mazePath
+     * @param {{[Direction]: string[]}} tiles  
+     */
+    constructor(ctx, mazePath, tiles) {
         this._ctx = ctx;
+        this._mazePath = mazePath;
+        this._tiles = tiles;
         this._currentTileIdx = 0;
         this._currentMillisecondsDiff = 0;
     }
 
     init() {
-        this._createNewPath();
+        const startCell = this._mazePath.getCurrentPathCell();
+        this._currentPos = { x: startCell.col * 64, y: startCell.row * 64 };
+    }
+
+    /**
+     * @returns {{x: number, y: number}}
+     */
+    get pos() {
+        return this._currentPos;
     }
 
     update(elapsed) {
+
+        // Update time elapsed variables to be able to update tile image every 100 ms
 
         if (this._lastElapsed === undefined) {
             this._lastElapsed = elapsed;
         }
 
         this._currentMillisecondsDiff += (elapsed - this._lastElapsed)
-        this._prevDirection = this._currentDirection;
-
         this._lastElapsed = elapsed;
 
-        const currentPathTile = this._currentPath[this._currentPathIdx];
-        const nextPathTile = this._currentPath[this._currentPathIdx + 1];
-
-        const endX = nextPathTile ? nextPathTile.col * 64 : ["east", "west"].includes(this._currentDirection) ? (currentPathTile.col + 1) * 64 : currentPathTile.col * 64;
-        const endY = nextPathTile ? nextPathTile.row * 64 : ["north", "south"].includes(this._currentDirection) ? (currentPathTile.row + 1) * 64 : currentPathTile.row * 64;
-
-        // Pick next tile in path 
-        if (["east", "west"].includes(this._currentDirection) && this._currentPos.x === endX || ["north", "south"].includes(this._currentDirection) && this._currentPos.y === endY) {
-            // Create new path
-            if (this._currentPathIdx === this._currentPath.length - 1) {
-                this._createNewPath();
-            } else {
-                this._currentPathIdx++;
-                this._currentPos = this._getNextPos();
-
-                this._currentDirection = this._getCurrentDirection();
-
-            }
-
-        } else {
-            this._currentPos = this._getNextPos();
-            this._currentDirection = this._getCurrentDirection();
-        }
+        // Update tile index (animation frame)
 
         if (this._currentMillisecondsDiff >= 100) {
             this._currentMillisecondsDiff = 0;
             this._currentTileIdx = this._currentTileIdx === 3 ? 0 : this._currentTileIdx += 1;
+        }
 
+
+        // Update position of sprite 
+
+        const currentPathTile = this._mazePath.getCurrentPathCell();
+        const nextPathTile = this._mazePath.getNextPathCell();
+        const currentDirection = this._mazePath.getCurrentDirection();
+
+        const endX = nextPathTile ? nextPathTile.col * 64 : ["east", "west"].includes(currentDirection) ? (currentPathTile.col + 1) * 64 : currentPathTile.col * 64;
+        const endY = nextPathTile ? nextPathTile.row * 64 : ["north", "south"].includes(currentDirection) ? (currentPathTile.row + 1) * 64 : currentPathTile.row * 64;
+
+        // Pick next tile in path 
+        if (["east", "west"].includes(currentDirection) && this._currentPos.x === endX || ["north", "south"].includes(currentDirection) && this._currentPos.y === endY) {
+
+            this._mazePath.next();
+            this._currentPos = { x: this._mazePath.getCurrentPathCell().col * 64, y: this._mazePath.getCurrentPathCell().row * 64 };
+
+        } else {
+            this._currentPos = this._getNextPos();
         }
 
     }
 
     draw() {
-        this._ctx.clearRect(0, 0, 3000, 2000);
+        const currentDirection = this._mazePath.getCurrentDirection();
 
-        paintTile(this._ctx, this._currentPos.x, this._currentPos.y - 16, this._tiles[this._currentDirection][this._currentTileIdx]);
-    }
-
-    _createNewPath() {
-        const startCell = this._currentPathIdx !== undefined ? this._currentPath[this._currentPathIdx] : getRandomRoadCell(this._roadGraph);
-        const endCell = getRandomRoadCell(this._roadGraph);
-
-        this._currentPath = bfs(startCell, endCell, this._roadGraph);
-        this._currentPathIdx = 0;
-        this._currentPos = { x: startCell.col * 64, y: startCell.row * 64 };
-        this._currentDirection = this._getCurrentDirection();
-        this._prevDirection = this._currentDirection;
-
+        paintTile(this._ctx, this._currentPos.x, this._currentPos.y - 16, this._tiles[currentDirection][this._currentTileIdx]);
     }
 
     /**
-     * Compares next and previous tiles in the path to calculate the next position of the sprite
+     * Get next position of sprite
      * @returns {{x: number, y: number}}
      */
     _getNextPos() {
-        const currentPathTile = this._currentPath[this._currentPathIdx];
+        const currentDirection = this._mazePath.getCurrentDirection();
 
-        if (this._currentPathIdx === this._currentPath.length - 1) {
-            const prevPathTile = this._currentPath[this._currentPathIdx - 1];
-
-            const posDiff = this._getPosDiff(prevPathTile, currentPathTile);
-            return { x: this._currentPos.x + posDiff.x, y: this._currentPos.y + posDiff.y }
-
-        } else {
-            const nextPathTile = this._currentPath[this._currentPathIdx + 1];
-
-            const posDiff = this._getPosDiff(currentPathTile, nextPathTile);
-            return { x: this._currentPos.x + posDiff.x, y: this._currentPos.y + posDiff.y }
-        }
-
-    }
-
-    _getCurrentDirection() {
-        const currentPathTile = this._currentPath[this._currentPathIdx];
-
-        if (this._currentPathIdx === this._currentPath.length - 1) {
-            const prevPathTile = this._currentPath[this._currentPathIdx - 1];
-
-            return this._getDirection(prevPathTile, currentPathTile);
-
-        } else {
-            const nextPathTile = this._currentPath[this._currentPathIdx + 1];
-            return this._getDirection(currentPathTile, nextPathTile);
+        switch (currentDirection) {
+            case "north":
+                return { x: this._currentPos.x, y: this._currentPos.y - 1 }
+            case "east":
+                return { x: this._currentPos.x + 1, y: this._currentPos.y }
+            case "south":
+                return { x: this._currentPos.x, y: this._currentPos.y + 1 }
+            case "west":
+                return { x: this._currentPos.x - 1, y: this._currentPos.y }
         }
     }
-
-    /**
-     * Calculates position difference by comparing current cell and next cell 
-     * @param {Cell} from 
-     * @param {Cell} to 
-     * @returns 
-     */
-    _getPosDiff(from, to) {
-        const speed = 1;
-
-        // Examples:
-        // If to.col > from.col the difference in x will be 1 * 1 = 1
-        // If to.row < from.row the difference in y will be -1 * 1 = 1
-        // The difference between from and to will be maximum since all of the cells in the path is after eachother
-        return {
-            x: (to.col - from.col) * speed,
-            y: (to.row - from.row) * speed
-        };
-    }
-
-    /**
-     * 
-     * @param {Cell} from 
-     * @param {Cell} to 
-     * @returns {Direction}
-     */
-    _getDirection(from, to) {
-        const rowDiff = to.row - from.row;
-        const colDiff = to.col - from.col;
-
-        if (rowDiff === 0) {
-            if (colDiff > 0) {
-                return "east";
-            }
-
-            return "west";
-        }
-
-        if (rowDiff > 0) {
-            return "south";
-        }
-
-        return "north";
-    }
-
 }

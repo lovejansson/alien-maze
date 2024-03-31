@@ -4,14 +4,13 @@
  * @param {CanvasRenderingContext2D} ctx the rendering context to draw in
  * @param {number} x 
  * @param {number} y 
- * @param {string} tile image to draw
+ * @param {Image} tile image to draw
  */
 export function paintTile(ctx, x, y, tile) {
     const tileSize = 64;
-    const image = new Image(tileSize, tileSize);
-    image.src = tile;
     ctx.clearRect(x, y, tileSize, tileSize)
-    ctx.drawImage(image, x, y, tileSize, tileSize);
+    ctx.drawImage(tile, x, y, tileSize, tileSize);
+
 }
 
 /**
