@@ -1,8 +1,7 @@
 import { paintTile } from './canvas';
-import * as array from "./array"
 import MazePath from './MazePath';
 
-export default class Sprite {
+export default class Alien {
 
     /**
      * @type {CanvasRenderingContext2D}

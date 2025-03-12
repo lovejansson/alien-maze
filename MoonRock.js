@@ -42,7 +42,9 @@ export default class MoonRock {
     }
 
     draw() {
-        paintTile(this._ctx, this._pos.x, this._pos.y, this._tileAsset);
+        console.log("DRAW")
+        const tileSize = 64;
+        this._ctx.drawImage(this._tileAsset, this._pos.x, this._pos.y, tileSize, tileSize);
     }
 
 }

@@ -18,7 +18,7 @@ export default class AnimatedTile {
     _speed;
 
     /**
-     * @type {number}
+     * @type {number | null}
      */
     _lastElapsed;
 
@@ -43,9 +43,11 @@ export default class AnimatedTile {
     _col;
 
     /**
-     * 
+     * @param { CanvasRenderingContext2D } ctx
      * @param {string[]} tiles 
-     * @param {number} duration 
+     * @param {number} duration
+     * @param { number } row
+     * @param { number } col
      */
     constructor(ctx, tiles, duration, row, col) {
         this._ctx = ctx;
@@ -57,9 +59,11 @@ export default class AnimatedTile {
 
         this._row = row;
         this._col = col;
+
+        this._lastElapsed = null;
     }
 
-    run() {
+    play() {
         requestAnimationFrame((elapsed) => {
 
             if (this._lastElapsed === undefined) {
@@ -72,15 +76,13 @@ export default class AnimatedTile {
                 // Switch tile every speed ms
                 if (this._currentMillisecondsDiff >= this._speed) {
 
-
-
                     paintTile(this._ctx, this._col * 64, this._row * 64, this._tiles[this._currentTileIdx]);
                     this._currentTileIdx = this._currentTileIdx === this._tiles.length - 1 ? 0 : this._currentTileIdx += 1;
                     this._currentMillisecondsDiff = 0;
                 }
             }
 
-            this.run();
+            this.play();
         });
     }
 

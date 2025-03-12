@@ -88,6 +88,7 @@ export default class MazePath {
 
 
     _createNewPath() {
+    
         const startCell = this._currentPathIdx !== undefined ? this._currentPath[this._currentPathIdx] : getRandomRoadCell(this._roadGraph);
         const endCell = getRandomRoadCell(this._roadGraph);
 

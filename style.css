@@ -1,31 +1,5 @@
-@font-face {
-  font-family: "Silkis";
-  src: url("./Silkscreen-Regular.ttf") format("truetype");
-}
-
-:root {
-  font-size: 10px;
-}
-
 body {
-  font-family: "Silkis";
-  color: white;
-  font-size: 2.4rem;
   margin: 0
-}
-
-#count {
-  position: fixed;
-  top: 2rem;
-  left: 2rem;
-  display: flex;
-  gap:1rem;
-  z-index: 100;
-
-}
-
-p {
-  margin: 0;
 }
 
 #section-maze {
@@ -38,6 +12,6 @@ canvas {
   left: 0;
 }
 
-#sprite {
+#tilemap-dynamic {
   z-index: 10;
 }

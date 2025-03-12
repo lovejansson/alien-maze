@@ -1,11 +1,11 @@
 import './style.css'
 import tilemapJSON from "./vanilla_tilemap.json";
-import AnimatedTile from './animatedTile';
-import Sprite from "./sprite"
+import AnimatedTile from './AnimatedTile';
+import Alien from './Alien';
 import MazePath from './MazePath';
-import * as array from "./array"
 import MoonRock from './MoonRock';
 import { getRandomRoadCell } from './maze';
+import "./array"
 
 app();
 
@@ -17,31 +17,107 @@ app();
  */
 
 async function app() {
-    const canvasTilemap = document.getElementById("tilemap-static");
-    const canvasSprite = document.getElementById("sprite");
 
-    if (!canvasTilemap || !canvasSprite) throw "Missing DOM: canvas";
+    /**
+     * @type {HTMLCanvasElement}
+     */
+    const canvasTilemap = document.getElementById("tilemap-static");
+     /**
+     * @type {HTMLCanvasElement}
+     */
+    const canvasDynamic = document.getElementById("tilemap-dynamic");
+
+    if (!canvasTilemap || !canvasDynamic) throw new Error("Missing DOM: canvas");
 
     canvasTilemap.width = tilemapJSON.width;
     canvasTilemap.height = tilemapJSON.height;
-    canvasSprite.width = tilemapJSON.width;
-    canvasSprite.height = tilemapJSON.height;
+    canvasDynamic.width = tilemapJSON.width;
+    canvasDynamic.height = tilemapJSON.height;
 
-    const ctxTilemap = canvasTilemap.getContext("2d");
-    const ctxSprite = canvasSprite.getContext("2d");
+    const ctxStatic = canvasTilemap.getContext("2d");
+    const ctxDynamic = canvasDynamic.getContext("2d");
 
-    ctxTilemap.imageSmoothingEnabled = false;
-    ctxSprite.imageSmoothingEnabled = false;
+    if (!ctxStatic || !ctxDynamic) throw new Error("Canvas rendering context is null");
 
-    // Draw static tilemap image
-    const image = new Image();
+    ctxStatic.imageSmoothingEnabled = false;
+    ctxDynamic.imageSmoothingEnabled = false;
 
-    image.src = tilemapJSON.tilemap;
+    drawStaticTilemap(ctxStatic);
 
-    image.addEventListener("load", async() => {
-        ctxTilemap.drawImage(image, 0, 0);
-        // Start animations
+    const roadGraph = createRoadGraph(tilemapJSON.objectmap);
 
+    const mazePath = new MazePath(roadGraph);
+
+    mazePath.init();
+
+     await drawMoonRocks(ctxStatic, roadGraph);
+
+    const alienAssets = await loadAlienAssets()
+
+    const alien = new Alien(ctxDynamic, mazePath, alienAssets);
+
+    alien.init();
+
+    play();
+
+    function play() {
+
+        requestAnimationFrame((elapsed) => {
+            ctxDynamic.clearRect(0, 0, tilemapJSON.width, tilemapJSON.height);
+            alien.update(elapsed);
+         
+         
+       
+            alien.draw();
+
+
+            play();
+        });
+    }
+   
+}
+
+
+/**
+ * Draws random moon rocks in the maze.
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {Map} roadGraph
+ */
+async function drawMoonRocks(ctx, roadGraph) {
+
+    const moonRockAssets = await loadAssets(["/assets/rock0.png", "/assets/rock1.png", "/assets/rock2.png", "/assets/rock3.png"]);
+
+    for (let i = 0; i < 25; ++i) {
+
+        const randomImage = moonRockAssets.random();
+        
+        const pos = getRandomRoadCell(roadGraph);
+
+        const moonRock = new MoonRock(ctx, { x: pos.col * 64, y: pos.row * 64 }, randomImage);
+
+
+        moonRock.draw()
+    
+    }
+
+   
+}
+
+/**
+ * Draws all the static content on the canvas.
+ * @param {CanvasRenderingContext2D} ctx 
+ */
+function drawStaticTilemap(ctx){
+
+  const image = new Image();
+  image.src = tilemapJSON.tilemap;
+
+  image.addEventListener("load", async() => {
+
+        // Draw the image on canvas
+        ctx.drawImage(image, 0, 0);
+        
+        // Start stars animations 
         for (let r = 0; r < tilemapJSON.animationmap.length; ++r) {
             for (let c = 0; c < tilemapJSON.animationmap[0].length; ++c) {
 
@@ -49,126 +125,24 @@ async function app() {
 
                     const animation = tilemapJSON.animations[tilemapJSON.animationmap[r][c]];
 
-                    const animationImages = await loadAnimationAssets(animation.tiles.map(t => tilemapJSON.tiles[t]))
+                    const animationImages = await loadAssets(animation.tiles.map(t => tilemapJSON.tiles[t]))
 
-                    const animatedTile = new AnimatedTile(ctxTilemap, animationImages, animation.duration, r, c);
+                    const animatedTile = new AnimatedTile(ctx, animationImages, animation.duration, r, c);
 
-                    animatedTile.run();
-
+                    animatedTile.play();
                 }
             }
-        }
-
-        console.dir(tilemapJSON.animationmap);
-
-        const objectmap = tilemapJSON.objectmap;
-
-        const roadGraph = createRoadGraph(objectmap);
-
-        const mazePath = new MazePath(roadGraph);
-
-        mazePath.init();
-
-        const spriteAssets = await loadSpriteAssets()
-
-        const sprite = new Sprite(ctxSprite, mazePath, spriteAssets);
-
-        sprite.init();
-
-        let moonRocks = [];
-
-        let collectedMoonRocks = 0;
-
-        const countDiv = document.getElementById("count");
-
-        if (!countDiv) throw "Missing DOM: count div"
-
-        const moonRockAssets = await loadMoonRockAssets();
-
-
-        for (let i = 0; i < 50; ++i) {
-            const randomImage = moonRockAssets.random();
-            const pos = getRandomRoadCell(roadGraph);
-
-            const moonRock = new MoonRock(ctxSprite, { x: pos.col * 64, y: pos.row * 64 }, randomImage);
-            moonRocks.push(moonRock);
-
-        }
-
-        run();
-
-        function run() {
-            requestAnimationFrame((elapsed) => {
-                ctxSprite.clearRect(0, 0, tilemapJSON.width, tilemapJSON.height);
-                sprite.update(elapsed);
-
-                const { countRemoved, updatedMoonRocks } = moonRocks.reduce((acc, curr) => {
-                    if (isColliding(sprite.pos, curr.pos)) {
-                        acc.countRemoved++;
-
-                    } else {
-                        acc.updatedMoonRocks.push(curr);
-                    }
-
-                    return acc;
-
-                }, { countRemoved: 0, updatedMoonRocks: [] });
-
-                for (let i = 0; i < countRemoved; ++i) {
-                    const randomImage = moonRockAssets.random();
-                    const pos = getRandomRoadCell(roadGraph);
-                    const moonRock = new MoonRock(ctxSprite, { x: pos.col * 64, y: pos.row * 64 }, randomImage);
-                    moonRocks.push(moonRock);
-
-                }
-
-                moonRocks = updatedMoonRocks;
-
-                collectedMoonRocks += countRemoved;
-
-                countDiv.children.item(1).textContent = collectedMoonRocks;
-
-                for (const moonRock of moonRocks) {
-                    moonRock.draw();
-                }
-
-                sprite.draw();
-
-                run();
-            });
         }
     });
 }
 
-async function loadAnimationAssets(assets) {
-    const images = [];
 
-    for (const asset of assets) {
-
-        images.push(new Promise((resolve, reject) => {
-            const image = new Image();
-            image.src = asset;
-
-            image.addEventListener("load", () => {
-                resolve(image);
-            });
-
-            image.addEventListener("error", () => {
-                reject();
-            });
-        }));
-    }
-
-    return await Promise.all(images);
-
-}
-
-async function loadSpriteAssets() {
+async function loadAlienAssets() {
     const assets = {
-        north: ["/assets/sprite-back0.png", "/assets/sprite-back1.png", "/assets/sprite-back0.png", "/assets/sprite-back2.png"],
-        east: ["/assets/sprite-right0.png", "/assets/sprite-right1.png", "/assets/sprite-right0.png", "/assets/sprite-right2.png"],
-        south: ["/assets/sprite-front0.png", "/assets/sprite-front1.png", "/assets/sprite-front0.png", "/assets/sprite-front2.png"],
-        west: ["/assets/sprite-left0.png", "/assets/sprite-left1.png", "/assets/sprite-left0.png", "/assets/sprite-left2.png"]
+        north: ["/assets/alien-back0.png", "/assets/alien-back1.png", "/assets/alien-back0.png", "/assets/alien-back2.png"],
+        east: ["/assets/alien-right0.png", "/assets/alien-right1.png", "/assets/alien-right0.png", "/assets/alien-right2.png"],
+        south: ["/assets/alien-front0.png", "/assets/alien-front1.png", "/assets/alien-front0.png", "/assets/alien-front2.png"],
+        west: ["/assets/alien-left0.png", "/assets/alien-left1.png", "/assets/alien-left0.png", "/assets/alien-left2.png"]
     };
 
     const images = {
@@ -179,33 +153,19 @@ async function loadSpriteAssets() {
     }
 
     for (const dir in assets) {
-        for (const asset of assets[dir]) {
-            const image = await new Promise((resolve, reject) => {
-                const image = new Image();
-                image.src = asset;
-
-                image.addEventListener("load", () => {
-                    resolve(image);
-                });
-
-                image.addEventListener("error", () => {
-                    reject()
-                });
-            });
-
-            images[dir].push(image);
-        }
+        images[dir] = await loadAssets(assets[dir]); 
     }
 
     return images;
 }
 
+
 /**
- * 
- * @returns {Promise<Image[]>}
+ * Loads assets from path and returns images.
+ * @param {string[]} assets 
  */
-async function loadMoonRockAssets() {
-    const assets = ["/assets/rock0.png", "/assets/rock1.png", "/assets/rock2.png", "/assets/rock3.png"];
+async function loadAssets(assets) {
+
     const images = [];
 
     for (const asset of assets) {
@@ -227,15 +187,6 @@ async function loadMoonRockAssets() {
     return await Promise.all(images);
 }
 
-/**
- * 
- * @param {{x: number, y: number}} pos1 
- * @param {x: number, y: number} pos2 
- * @returns {boolean}
- */
-function isColliding(pos1, pos2) {
-    return Math.abs(pos1.x - pos2.x) < 42 && Math.abs(pos1.y - pos2.y) < 42
-}
 
 function createRoadGraph(objectmap) {
     const graph = new Map();

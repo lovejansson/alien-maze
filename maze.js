@@ -52,9 +52,8 @@ export function bfs(startCell, endCell, graph) {
  * @returns {{row: number, col: number}}
  */
 export function getRandomRoadCell(roadsGraph) {
-
     const cells = [...roadsGraph.keys()];
-
+    
     const randomCell = cells.random().split(":");
 
     return { row: parseInt(randomCell[0]), col: parseInt(randomCell[1]) }
