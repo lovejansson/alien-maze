@@ -18,6 +18,8 @@ const baseUrl = import.meta.env.BASE_URL;
 
 let isPlaying = false;
 
+let hasStarted = false;
+
 main();
 
 /**
@@ -70,8 +72,11 @@ async function main() {
     const animatedTiles = createAnimatedTiles();
 
     canvasDynamic.addEventListener("click", () => {
+        if(!hasStarted) hasStarted = true;
         isPlaying = !isPlaying;
     })
+
+    const startImage = AssetManager.getInstance().get("start");
 
     play();
 
@@ -85,6 +90,7 @@ async function main() {
 
             requestAnimationFrame((elapsed) => {
                 if(isPlaying) {
+                   
                     ctxDynamic.clearRect(0, 0, tilemapJSON.width, tilemapJSON.height);
                     for(const animatedTile of animatedTiles) {
                         animatedTile.update(elapsed);
@@ -94,6 +100,8 @@ async function main() {
 
                     alien.update(elapsed);
                     alien.draw(ctxDynamic);
+                }else if(!hasStarted) {
+                    ctxDynamic.drawImage(startImage, 0, 0, tilemapJSON.width, tilemapJSON.height);
                 }
                 play();
             });
@@ -124,6 +132,7 @@ async function initAssets() {
     assetManager.register("alien-left0", `${baseUrl}assets/alien-left0.png`);
     assetManager.register("alien-left1", `${baseUrl}assets/alien-left1.png`);
     assetManager.register("alien-left2", `${baseUrl}assets/alien-left2.png`);
+    assetManager.register("start", `${baseUrl}assets/display-image.png`);
 
     // Register tilemap static layers
     for(const [idx, layer] of Object.entries(tilemapJSON.tilemap)) {
