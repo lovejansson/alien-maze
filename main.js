@@ -16,7 +16,7 @@ export const state  = {
 
 const baseUrl = import.meta.env.BASE_URL;
 
-let isPlaying = true;
+let isPlaying = false;
 
 main();
 
