@@ -13,6 +13,9 @@ export const state  = {
     tileSize: 0,
 }
 
+
+const baseUrl = import.meta.env.BASE_URL;
+
 main();
 
 /**
@@ -90,18 +93,18 @@ async function initAssets() {
     const assetManager = AssetManager.getInstance();
 
     // Register alien assets
-    assetManager.register("alien-back0", "/assets/alien-back0.png");
-    assetManager.register("alien-back1", "/assets/alien-back1.png");
-    assetManager.register("alien-back2", "/assets/alien-back2.png");
-    assetManager.register("alien-front0", "/assets/alien-front0.png");
-    assetManager.register("alien-front1", "/assets/alien-front1.png");
-    assetManager.register("alien-front2", "/assets/alien-front2.png");
-    assetManager.register("alien-right0", "/assets/alien-right0.png");
-    assetManager.register("alien-right1", "/assets/alien-right1.png");
-    assetManager.register("alien-right2", "/assets/alien-right2.png");
-    assetManager.register("alien-left0", "/assets/alien-left0.png");
-    assetManager.register("alien-left1", "/assets/alien-left1.png");
-    assetManager.register("alien-left2", "/assets/alien-left2.png");
+    assetManager.register("alien-back0", `${baseUrl}assets/alien-back0.png`);
+    assetManager.register("alien-back1", `${baseUrl}assets/alien-back1.png`);
+    assetManager.register("alien-back2", `${baseUrl}assets/alien-back2.png`);
+    assetManager.register("alien-front0", `${baseUrl}assets/alien-front0.png`);
+    assetManager.register("alien-front1", `${baseUrl}assets/alien-front1.png`);
+    assetManager.register("alien-front2", `${baseUrl}assets/alien-front2.png`);
+    assetManager.register("alien-right0", `${baseUrl}assets/alien-right0.png`);
+    assetManager.register("alien-right1", `${baseUrl}assets/alien-right1.png`);
+    assetManager.register("alien-right2", `${baseUrl}assets/alien-right2.png`);
+    assetManager.register("alien-left0", `${baseUrl}assets/alien-left0.png`);
+    assetManager.register("alien-left1", `${baseUrl}assets/alien-left1.png`);
+    assetManager.register("alien-left2", `${baseUrl}assets/alien-left2.png`);
 
     // Register tilemap static layers
     for(const [idx, layer] of Object.entries(tilemapJSON.tilemap)) {
