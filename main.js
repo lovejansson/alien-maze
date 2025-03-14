@@ -16,6 +16,8 @@ export const state  = {
 
 const baseUrl = import.meta.env.BASE_URL;
 
+let isPlaying = true;
+
 main();
 
 /**
@@ -65,7 +67,14 @@ async function main() {
     const alien = new Alien(mazePath);
     alien.init();
 
+    const animatedTiles = createAnimatedTiles();
+
+    canvasDynamic.addEventListener("click", () => {
+        isPlaying = !isPlaying;
+    })
+
     play();
+
 
     /**
      * Game loop that continually updates and draws the game state.
@@ -73,12 +82,22 @@ async function main() {
      * @returns {void}
      */
     function play() {
-        requestAnimationFrame((elapsed) => {
-            ctxDynamic.clearRect(0, 0, tilemapJSON.width, tilemapJSON.height);
-            alien.update(elapsed);
-            alien.draw(ctxDynamic);
-            play();
-        });
+
+            requestAnimationFrame((elapsed) => {
+                if(isPlaying) {
+                    ctxDynamic.clearRect(0, 0, tilemapJSON.width, tilemapJSON.height);
+                    for(const animatedTile of animatedTiles) {
+                        animatedTile.update(elapsed);
+                        animatedTile.draw(ctxDynamic);
+
+                    }
+
+                    alien.update(elapsed);
+                    alien.draw(ctxDynamic);
+                }
+                play();
+            });
+         
     }
 }
 
@@ -122,21 +141,9 @@ async function initAssets() {
     await assetManager.load();
 }
 
-/**
- * Draws the static content of the tilemap on the canvas, including layers and animated tiles.
- * 
- * @param {CanvasRenderingContext2D} ctx The rendering context to draw the static tilemap.
- * @returns {Promise<void>} A promise that resolves when the static tilemap is drawn.
- */
-async function drawStaticTilemap(ctx) {
-    const assetManager = AssetManager.getInstance();
+function createAnimatedTiles() {
 
-    // Draw static tilemap layers
-    for (let i = 0; i < tilemapJSON.tilemap.length; ++i) {
-        const image = assetManager.get(i.toString());
-        ctx.drawImage(image, 0, 0);     
-    }
-
+    const animatedTiles = [];
     // Start animation for animated tiles
     for (const layer of tilemapJSON.animationmap) {
         for (let r = 0; r < layer.tilemap.length; ++r) {
@@ -151,10 +158,28 @@ async function drawStaticTilemap(ctx) {
                             duration: f.duration, assetName: `${animation.name}${idx}`
                         })), r, c);
                         animatedTile.init();
-                        animatedTile.play(ctx);
+                        animatedTiles.push(animatedTile);
                     }
                 }
             }
         }
+    }
+
+    return animatedTiles;
+}
+
+/**
+ * Draws the static content of the tilemap on the canvas, including layers and animated tiles.
+ * 
+ * @param {CanvasRenderingContext2D} ctx The rendering context to draw the static tilemap.
+ * @returns {Promise<void>} A promise that resolves when the static tilemap is drawn.
+ */
+async function drawStaticTilemap(ctx) {
+    const assetManager = AssetManager.getInstance();
+
+    // Draw static tilemap layers
+    for (let i = 0; i < tilemapJSON.tilemap.length; ++i) {
+        const image = assetManager.get(i.toString());
+        ctx.drawImage(image, 0, 0);     
     }
 }
