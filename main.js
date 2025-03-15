@@ -132,7 +132,7 @@ async function initAssets() {
     assetManager.register("alien-left0", `${baseUrl}assets/alien-left0.png`);
     assetManager.register("alien-left1", `${baseUrl}assets/alien-left1.png`);
     assetManager.register("alien-left2", `${baseUrl}assets/alien-left2.png`);
-    assetManager.register("start", `${baseUrl}assets/display-image.png`);
+    assetManager.register("start", `${baseUrl}assets/thumbnail.png`);
 
     // Register tilemap static layers
     for(const [idx, layer] of Object.entries(tilemapJSON.tilemap)) {
