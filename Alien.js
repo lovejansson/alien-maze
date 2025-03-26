@@ -1,6 +1,6 @@
 import MazePath from './MazePath';
 import { state } from './main';
-import AssetManager from './AssetManager';
+import { AnimationManager } from './AnimationManager';
 
 /**
  * @typedef Direction 
@@ -15,39 +15,11 @@ import AssetManager from './AssetManager';
 export default class Alien {
 
     /**
-     * A collection of sprite tiles indexed by direction
-     * @type {{[key: Direction]: Image[]}}
-     * @private
-     */
-    _spriteTiles;
-
-    /**
-     * The current index of the sprite tile to be drawn.
-     * @type {number}
-     * @private
-     */
-    _currentTileIdx;
-
-    /**
      * The current position of the alien in pixel coordinates
      * @type {Pos}
      * @private
      */
     _currentPos;
-
-    /**
-     * The last elapsed time used for time-based updates
-     * @type {number}
-     * @private
-     */
-    _lastElapsed;
-
-    /**
-     * The accumulated time difference for updating the sprite animation
-     * @type {number}
-     * @private
-     */
-    _currentMillisecondsDiff;
 
     /** 
      * The maze path that the alien follows
@@ -63,6 +35,12 @@ export default class Alien {
      */
     _currentPixelDiff;
 
+    /**
+     * @type {AnimationManager}
+     * @private
+     */
+    _animations;
+
 
     /**
      * Creates an instance of the Alien class.
@@ -70,10 +48,18 @@ export default class Alien {
      */
     constructor(mazePath) {
         this._mazePath = mazePath;
-        this._spriteTiles = {};
         this._currentTileIdx = 0;
-        this._currentMillisecondsDiff = 0;
         this._currentPixelDiff = 0;
+
+        this.width = state.tileSize;
+        this.height = state.tileSize;
+
+        this._animations = new AnimationManager(this);
+
+        this._animations.create("alien-north", {loop: true, frames: "alien-north", numberOfFrames: 4});
+        this._animations.create("alien-south", {loop: true, frames: "alien-south", numberOfFrames: 4});
+        this._animations.create("alien-west", {loop: true, frames: "alien-west", numberOfFrames: 4});
+        this._animations.create("alien-east", {loop: true, frames: "alien-east", numberOfFrames: 4});
     }
 
     /**
@@ -83,24 +69,8 @@ export default class Alien {
     async init() {
         const startCell = this._mazePath.getCurrentPathCell();
         this._currentPos = { x: startCell.col * state.tileSize, y: startCell.row * state.tileSize };
-        await this._createSpriteAssets();
     }
 
-    /**
-     * Gets the sprite assets for the alien from the AssetManager and groups them by four directions (north, east, south, west).
-     * @returns {Promise<void>}
-     * @private
-     */
-    async _createSpriteAssets() {
-        const assetManager = AssetManager.getInstance();
-
-        this._spriteTiles = {
-            north: [assetManager.get("alien-back0"), assetManager.get("alien-back1"), assetManager.get("alien-back0"), assetManager.get("alien-back2")],
-            east: [assetManager.get("alien-right0"), assetManager.get("alien-right1"), assetManager.get("alien-right0"), assetManager.get("alien-right2")],
-            south:[assetManager.get("alien-front0"), assetManager.get("alien-front1"), assetManager.get("alien-front0"), assetManager.get("alien-front2")],
-            west: [assetManager.get("alien-left0"), assetManager.get("alien-left1"), assetManager.get("alien-left0"), assetManager.get("alien-left2")],
-        };
-    }
 
     /**
      * Gets the current position of the alien.
@@ -112,24 +82,8 @@ export default class Alien {
 
     /**
      * Updates the alien's state, including sprite frame and position.
-     * @param {number} elapsed The time elapsed since the last update.
      */
-    update(elapsed) {
-
-        // Update time elapsed variables to be able to update tile image every 100 ms
-        if (this._lastElapsed === undefined) {
-            this._lastElapsed = elapsed;
-        }
-
-        this._currentMillisecondsDiff += (elapsed - this._lastElapsed);
-        this._lastElapsed = elapsed;
-
-        // Update tile index (sprite frame) every 100 ms
-        if (this._currentMillisecondsDiff >= 100) {
-            this._currentMillisecondsDiff = 0;
-            this._currentTileIdx = this._currentTileIdx === 3 ? 0 : this._currentTileIdx += 1;
-        }
-
+    update() {
         // Update position
         this._currentPos = this._getNextPos();
         this._currentPixelDiff++;
@@ -138,6 +92,16 @@ export default class Alien {
             this._mazePath.next();
             this._currentPixelDiff = 0;
         } 
+
+        // Update sprite animation
+        const currentDirection = this._mazePath.getCurrentDirection();
+    
+        if(!this._animations.isPlaying(`alien-${currentDirection}`)) {
+            
+            this._animations.play(`alien-${currentDirection}`)
+        } else {
+            this._animations.update();
+        }
     }
 
     /**
@@ -145,11 +109,11 @@ export default class Alien {
      * @param {CanvasRenderingContext2D} ctx The canvas context to draw the alien.
      */
     draw(ctx) {
-        const currentDirection = this._mazePath.getCurrentDirection();
+
         const x = this._currentPos.x;
         const y = this._currentPos.y - state.tileSize / 2;
         ctx.clearRect(x, y, state.tileSize, state.tileSize);
-        ctx.drawImage(this._spriteTiles[currentDirection][this._currentTileIdx], x, y, state.tileSize, state.tileSize);
+        this._animations.draw(ctx, {x,y});
     }
 
     /**

@@ -98,7 +98,7 @@ async function main() {
 
                     }
 
-                    alien.update(elapsed);
+                    alien.update();
                     alien.draw(ctxDynamic);
                 }else if(!hasStarted) {
                     ctxDynamic.drawImage(startImage, 0, 0, tilemapJSON.width, tilemapJSON.height);
@@ -120,18 +120,11 @@ async function initAssets() {
     const assetManager = AssetManager.getInstance();
 
     // Register alien assets
-    assetManager.register("alien-back0", `${baseUrl}assets/alien-back0.png`);
-    assetManager.register("alien-back1", `${baseUrl}assets/alien-back1.png`);
-    assetManager.register("alien-back2", `${baseUrl}assets/alien-back2.png`);
-    assetManager.register("alien-front0", `${baseUrl}assets/alien-front0.png`);
-    assetManager.register("alien-front1", `${baseUrl}assets/alien-front1.png`);
-    assetManager.register("alien-front2", `${baseUrl}assets/alien-front2.png`);
-    assetManager.register("alien-right0", `${baseUrl}assets/alien-right0.png`);
-    assetManager.register("alien-right1", `${baseUrl}assets/alien-right1.png`);
-    assetManager.register("alien-right2", `${baseUrl}assets/alien-right2.png`);
-    assetManager.register("alien-left0", `${baseUrl}assets/alien-left0.png`);
-    assetManager.register("alien-left1", `${baseUrl}assets/alien-left1.png`);
-    assetManager.register("alien-left2", `${baseUrl}assets/alien-left2.png`);
+    assetManager.register("alien-north", `${baseUrl}assets/alien-north.png`);
+    assetManager.register("alien-east", `${baseUrl}assets/alien-east.png`);
+    assetManager.register("alien-south", `${baseUrl}assets/alien-south.png`);
+    assetManager.register("alien-west", `${baseUrl}assets/alien-west.png`);
+
     assetManager.register("start", `${baseUrl}assets/thumbnail.png`);
 
     // Register tilemap static layers
