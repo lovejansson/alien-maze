@@ -1,4 +1,3 @@
-import './style.css';
 import tilemapJSON from "./tilemap.json";
 import AnimatedTile from './AnimatedTile';
 import Alien from './Alien';
@@ -14,12 +13,10 @@ export const state  = {
     tileSize: 0,
 }
 
-
 const baseUrl = import.meta.env.BASE_URL;
 
 let isPlaying = false;
 
-let hasStarted = false;
 
 main();
 
@@ -30,6 +27,9 @@ main();
  * @returns {Promise<void>} A promise that resolves when the game is initialized.
  */
 async function main() {
+
+    const app = document.getElementById("app");
+
     /**
      * @type {HTMLCanvasElement}
      */
@@ -39,6 +39,8 @@ async function main() {
      * @type {HTMLCanvasElement}
      */
     const canvasDynamic = document.getElementById("tilemap-dynamic");
+
+    if(!app) throw new Error("Missing DOM: app");
 
     if (!canvasTilemap || !canvasDynamic) throw new Error("Missing DOM: canvas");
 
@@ -53,6 +55,7 @@ async function main() {
 
     const ctxStatic = canvasTilemap.getContext("2d");
     const ctxDynamic = canvasDynamic.getContext("2d");
+
 
     if (!ctxStatic || !ctxDynamic) throw new Error("Canvas rendering context is null");
 
@@ -72,8 +75,7 @@ async function main() {
 
     const animatedTiles = createAnimatedTiles();
 
-    canvasDynamic.addEventListener("click", () => {
-        if(!hasStarted) hasStarted = true;
+    app.addEventListener("click", () => {
         isPlaying = !isPlaying;
     })
 
@@ -101,6 +103,7 @@ async function main() {
 
                     alien.update();
                     alien.draw(ctxDynamic);
+<<<<<<< HEAD
 
                     const audioPlayer = AudioPlayer.getInstance();
 
@@ -114,6 +117,10 @@ async function main() {
                     if(audioPlayer.isOn()) {
                         audioPlayer.onOffSwitch();
                     }
+=======
+                }else {
+                    ctxDynamic.clearRect(0, 0, tilemapJSON.width, tilemapJSON.height);
+>>>>>>> 46243ad (changed name of assets folder)
                     ctxDynamic.drawImage(startImage, 0, 0, tilemapJSON.width, tilemapJSON.height);
                 }
                 play();
