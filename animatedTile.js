@@ -1,5 +1,5 @@
-import AssetManager from "./AssetManager.js";
 import { state } from "./main.js";
+import AssetManager from "./AssetManager.js";
 
 export default class AnimatedTile {
 

@@ -5,6 +5,7 @@ import Alien from './Alien';
 import MazePath from './MazePath';
 import "./array";
 import { createRoadGraph } from './maze';
+import AudioPlayer  from './AudioPlayer';
 import AssetManager from './AssetManager';
 
 export const state  = {
@@ -89,18 +90,30 @@ async function main() {
     function play() {
 
             requestAnimationFrame((elapsed) => {
+                ctxDynamic.clearRect(0, 0, tilemapJSON.width, tilemapJSON.height);
+
                 if(isPlaying) {
                    
-                    ctxDynamic.clearRect(0, 0, tilemapJSON.width, tilemapJSON.height);
                     for(const animatedTile of animatedTiles) {
                         animatedTile.update(elapsed);
                         animatedTile.draw(ctxDynamic);
-
                     }
 
                     alien.update();
                     alien.draw(ctxDynamic);
-                }else if(!hasStarted) {
+
+                    const audioPlayer = AudioPlayer.getInstance();
+
+                    if(!audioPlayer.isOn()) {
+                        audioPlayer.onOffSwitch();
+                        audioPlayer.playAudio("background");
+                    }
+                }else {
+                    const audioPlayer = AudioPlayer.getInstance();
+
+                    if(audioPlayer.isOn()) {
+                        audioPlayer.onOffSwitch();
+                    }
                     ctxDynamic.drawImage(startImage, 0, 0, tilemapJSON.width, tilemapJSON.height);
                 }
                 play();
@@ -120,12 +133,15 @@ async function initAssets() {
     const assetManager = AssetManager.getInstance();
 
     // Register alien assets
-    assetManager.register("alien-north", `${baseUrl}assets/alien-north.png`);
-    assetManager.register("alien-east", `${baseUrl}assets/alien-east.png`);
-    assetManager.register("alien-south", `${baseUrl}assets/alien-south.png`);
-    assetManager.register("alien-west", `${baseUrl}assets/alien-west.png`);
+    assetManager.register("alien-north", `${baseUrl}images/alien-north.png`);
+    assetManager.register("alien-east", `${baseUrl}images/alien-east.png`);
+    assetManager.register("alien-south", `${baseUrl}images/alien-south.png`);
+    assetManager.register("alien-west", `${baseUrl}images/alien-west.png`);
+    assetManager.register("start", `${baseUrl}images/thumbnail.png`);
 
-    assetManager.register("start", `${baseUrl}assets/thumbnail.png`);
+    const audioPlayer = AudioPlayer.getInstance();
+
+    await audioPlayer.createAudio("background", `${baseUrl}audio/background.mp3`);
 
     // Register tilemap static layers
     for(const [idx, layer] of Object.entries(tilemapJSON.tilemap)) {
