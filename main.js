@@ -106,7 +106,7 @@ async function main() {
 
                     if(!audioPlayer.isOn()) {
                         audioPlayer.onOffSwitch();
-                        audioPlayer.playAudio("background");
+                        audioPlayer.playAudio("background", true);
                     }
                 }else {
                     const audioPlayer = AudioPlayer.getInstance();
@@ -141,7 +141,7 @@ async function initAssets() {
 
     const audioPlayer = AudioPlayer.getInstance();
 
-    await audioPlayer.createAudio("background", `${baseUrl}audio/background.mp3`);
+    await audioPlayer.createAudio("background", `${baseUrl}audio/background.wav`);
 
     // Register tilemap static layers
     for(const [idx, layer] of Object.entries(tilemapJSON.tilemap)) {
