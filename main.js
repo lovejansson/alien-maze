@@ -103,7 +103,6 @@ async function main() {
 
                     alien.update();
                     alien.draw(ctxDynamic);
-<<<<<<< HEAD
 
                     const audioPlayer = AudioPlayer.getInstance();
 
@@ -117,10 +116,6 @@ async function main() {
                     if(audioPlayer.isOn()) {
                         audioPlayer.onOffSwitch();
                     }
-=======
-                }else {
-                    ctxDynamic.clearRect(0, 0, tilemapJSON.width, tilemapJSON.height);
->>>>>>> 46243ad (changed name of assets folder)
                     ctxDynamic.drawImage(startImage, 0, 0, tilemapJSON.width, tilemapJSON.height);
                 }
                 play();
