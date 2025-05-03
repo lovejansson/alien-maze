@@ -4,8 +4,8 @@ import Alien from './Alien';
 import MazePath from './MazePath';
 import "./array";
 import { createRoadGraph } from './maze';
-import AudioPlayer  from './AudioPlayer';
 import AssetManager from './AssetManager';
+import MusicPlayer from "./music-player/MusicPlayer";
 
 export const state  = {
     width: 0,
@@ -40,9 +40,14 @@ async function main() {
      */
     const canvasDynamic = document.getElementById("tilemap-dynamic");
 
+    const musicPlayer = document.querySelector("music-player");
+
     if(!app) throw new Error("Missing DOM: app");
 
     if (!canvasTilemap || !canvasDynamic) throw new Error("Missing DOM: canvas");
+
+    if (!musicPlayer) throw new Error("Missing DOM: music player");
+
 
     canvasTilemap.width = tilemapJSON.width;
     canvasTilemap.height = tilemapJSON.height;
@@ -75,8 +80,12 @@ async function main() {
 
     const animatedTiles = createAnimatedTiles();
 
-    app.addEventListener("click", () => {
-        isPlaying = !isPlaying;
+    musicPlayer.addEventListener("play", () => {
+        if(!isPlaying) isPlaying = true;
+    });
+
+    musicPlayer.addEventListener("pause", () => {
+        if(isPlaying) isPlaying = false;
     })
 
     const startImage = AssetManager.getInstance().get("start");
@@ -104,18 +113,14 @@ async function main() {
                     alien.update();
                     alien.draw(ctxDynamic);
 
-                    const audioPlayer = AudioPlayer.getInstance();
-
-                    if(!audioPlayer.isOn()) {
-                        audioPlayer.onOffSwitch();
-                        audioPlayer.playAudio("background", true);
+                    if(!musicPlayer.isOn()) {
+                        musicPlayer.play();
                     }
                 }else {
-                    const audioPlayer = AudioPlayer.getInstance();
-
-                    if(audioPlayer.isOn()) {
-                        audioPlayer.onOffSwitch();
+                    if(musicPlayer.isOn()) {
+                        musicPlayer.pause();
                     }
+
                     ctxDynamic.drawImage(startImage, 0, 0, tilemapJSON.width, tilemapJSON.height);
                 }
                 play();
@@ -140,10 +145,6 @@ async function initAssets() {
     assetManager.register("alien-south", `${baseUrl}images/alien-south.png`);
     assetManager.register("alien-west", `${baseUrl}images/alien-west.png`);
     assetManager.register("start", `${baseUrl}images/thumbnail.png`);
-
-    const audioPlayer = AudioPlayer.getInstance();
-
-    await audioPlayer.createAudio("background", `${baseUrl}audio/background.wav`);
 
     // Register tilemap static layers
     for(const [idx, layer] of Object.entries(tilemapJSON.tilemap)) {

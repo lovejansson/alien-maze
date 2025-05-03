@@ -122,6 +122,7 @@ export default class Alien {
      * @private
      */
     _getNextPos() {
+        
         const currentDirection = this._mazePath.getCurrentDirection();
 
         switch (currentDirection) {
