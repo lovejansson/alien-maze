@@ -1,6 +1,6 @@
-import MazePath from './MazePath';
-import { state } from './main';
-import { AnimationManager } from './AnimationManager';
+import MazePath from './MazePath.js';
+import { state } from './main.js';
+import { AnimationManager } from './AnimationManager.js';
 
 /**
  * @typedef Direction 

@@ -1,11 +1,9 @@
-import tilemapJSON from "./tilemap.json";
-import AnimatedTile from './AnimatedTile';
-import Alien from './Alien';
-import MazePath from './MazePath';
-import "./array";
-import { createRoadGraph } from './maze';
-import AssetManager from './AssetManager';
-import MusicPlayer from "./music-player/MusicPlayer";
+import AnimatedTile from './AnimatedTile.js';
+import Alien from './Alien.js';
+import MazePath from './MazePath.js';
+import "./array.js";
+import { createRoadGraph } from './maze.js';
+import AssetManager from './AssetManager.js';
 
 export const state  = {
     width: 0,
@@ -13,10 +11,12 @@ export const state  = {
     tileSize: 0,
 }
 
-const baseUrl = import.meta.env.BASE_URL;
-
+// "/alien-maze/" is the base URL for production
+// "/" is the base URL for development
+const baseUrl = "/";
 let isPlaying = false;
 
+let tilemapJSON = null;
 
 main();
 
@@ -48,6 +48,8 @@ async function main() {
 
     if (!musicPlayer) throw new Error("Missing DOM: music player");
 
+    tilemapJSON = await loadTilemap();
+    if (!tilemapJSON) throw new Error("Tilemap JSON is null");
 
     canvasTilemap.width = tilemapJSON.width;
     canvasTilemap.height = tilemapJSON.height;
@@ -86,7 +88,7 @@ async function main() {
 
     musicPlayer.addEventListener("pause", () => {
         if(isPlaying) isPlaying = false;
-    })
+    });
 
     const startImage = AssetManager.getInstance().get("start");
 
@@ -126,6 +128,22 @@ async function main() {
                 play();
             });
          
+    }
+}
+
+async function loadTilemap() {
+  
+    try {
+        const response = await fetch(`${baseUrl}tilemap.json`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const tilemapJSON = await response.json();
+        return tilemapJSON;
+    }
+    catch (error) {
+        console.error("Error loading tilemap:", error);
+        throw error;
     }
 }
 

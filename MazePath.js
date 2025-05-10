@@ -1,4 +1,4 @@
-import { getRandomRoadCell, bfs } from './maze';
+import { getRandomRoadCell, bfs } from './maze.js';
 
 /**
  * @typedef Direction 

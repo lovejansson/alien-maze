@@ -1,4 +1,4 @@
-import AssetManager from "./AssetManager";
+import AssetManager from "./AssetManager.js";
 
 /**
  * @typedef {Object} AnimationConfig
