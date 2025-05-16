@@ -6,4 +6,5 @@ As soon as the alien reaches its goal he starts on a new path.
 
 ## Tech stack
 - [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) for graphics.
+fjksdlfjsdkl
 - [Vite](https://vite.dev/), a build tool for developing and building the application.
