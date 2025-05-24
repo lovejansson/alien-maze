@@ -28,6 +28,25 @@ main();
  */
 async function main() {
 
+    // Test parsiong html to replace the base URL with "/alien-maze/"
+
+    const indexHTML = await fetch("index.html"); 
+
+    if (!indexHTML.ok) {
+        throw new Error(`HTTP error! status: ${indexHTML.status}`);
+    }
+
+
+    const indexHTMLText = await indexHTML.text();
+
+    const finds = indexHTMLText.match(/href="(\/{1})(.*)"/g);
+    console.log(finds);
+   
+    // Replace the base URL in the HTML text
+    const updatedHTMLText = indexHTMLText.replace(/href="(\/)(.*)"/, `href="/alien-maze/$2"`).replace(/src="(\/)(.*)"/, `src="/alien-maze/$2"`);
+    
+    console.log(updatedHTMLText);
+
     const app = document.getElementById("app");
 
     /**
