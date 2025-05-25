@@ -5,6 +5,7 @@ import "./array.js";
 import { createRoadGraph } from './maze.js';
 import ImagesManager from './ImagesManager.js';
 import AudioPlayer from './AudioPlayer.js';
+import { BASE_URL } from "./config.js";
 
 export const state  = {
     width: 0,
