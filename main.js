@@ -15,9 +15,6 @@ export const state  = {
 export const imagesManager = new ImagesManager();
 export const audioPlayer = new AudioPlayer();
 
-// "/alien-maze/" is the base URL for production
-// "/" is the base URL for development
-const baseUrl = "/";
 let isPlaying = false;
 
 let tilemapJSON = null;
@@ -157,7 +154,7 @@ async function main() {
 async function loadTilemap() {
   
     try {
-        const response = await fetch(`${baseUrl}tilemap.json`);
+        const response = await fetch(`${BASE_URL}tilemap.json`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -180,11 +177,11 @@ async function loadTilemap() {
 async function initAssets() {
 
     // Register alien assets
-    imagesManager.add("alien-north", `${baseUrl}images/alien-north.png`);
-    imagesManager.add("alien-east", `${baseUrl}images/alien-east.png`);
-    imagesManager.add("alien-south", `${baseUrl}images/alien-south.png`);
-    imagesManager.add("alien-west", `${baseUrl}images/alien-west.png`);
-    imagesManager.add("start", `${baseUrl}images/thumbnail.png`);
+    imagesManager.add("alien-north", `${BASE_URL}images/alien-north.png`);
+    imagesManager.add("alien-east", `${BASE_URL}images/alien-east.png`);
+    imagesManager.add("alien-south", `${BASE_URL}images/alien-south.png`);
+    imagesManager.add("alien-west", `${BASE_URL}images/alien-west.png`);
+    imagesManager.add("start", `${BASE_URL}images/thumbnail.png`);
 
     // Register tilemap static layers
     for(const [idx, layer] of Object.entries(tilemapJSON.tilemap)) {
