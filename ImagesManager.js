@@ -1,10 +1,4 @@
-export default class AssetManager {
-    /**
-     * @type {AssetManager}
-     * @description The singleton instance of the AssetManager.
-     */
-    static instance;
-
+export default class ImagesManager {
     /**
      * @type {Map<string, HTMLImageElement>}
      * @description A map that stores images, where the key is the asset name and the value is the corresponding HTMLImageElement.
@@ -27,24 +21,12 @@ export default class AssetManager {
     }
 
     /**
-     * Using the singleton pattern to return and/or create an application-wide instance of an asset manager.
-     * 
-     * @returns {AssetManager} The singleton instance of the AssetManager.
-     */
-    static getInstance() {
-        if (!AssetManager.instance) {
-            AssetManager.instance = new AssetManager();
-        }
-        return AssetManager.instance;
-    }
-
-    /**
      * Registers an asset name with a source URL to be loaded later.
      * 
      * @param {string} name The name of the asset.
      * @param {string} src The source URL of the asset image.
      */
-    register(name, src) {
+    add(name, src) {
         this._srcs.set(name, src);
     }
 

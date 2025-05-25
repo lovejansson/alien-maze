@@ -3,13 +3,17 @@ import Alien from './Alien.js';
 import MazePath from './MazePath.js';
 import "./array.js";
 import { createRoadGraph } from './maze.js';
-import AssetManager from './AssetManager.js';
+import ImagesManager from './ImagesManager.js';
+import AudioPlayer from './AudioPlayer.js';
 
 export const state  = {
     width: 0,
     height: 0,
     tileSize: 0,
 }
+
+export const imagesManager = new ImagesManager();
+export const audioPlayer = new AudioPlayer();
 
 // "/alien-maze/" is the base URL for production
 // "/" is the base URL for development
@@ -109,7 +113,7 @@ async function main() {
         if(isPlaying) isPlaying = false;
     });
 
-    const startImage = AssetManager.getInstance().get("start");
+    const startImage = imagesManager.get("start");
 
     play();
 
@@ -167,36 +171,35 @@ async function loadTilemap() {
 }
 
 /**
- * Initializes and loads all assets using the AssetManager.
+ * Initializes and loads all assets using the ImagesManager.
  * Registers image sources and waits for all assets to be loaded before continuing.
  * 
  * @async
  * @returns {Promise<void>} A promise that resolves when all assets have been loaded.
  */
 async function initAssets() {
-    const assetManager = AssetManager.getInstance();
 
     // Register alien assets
-    assetManager.register("alien-north", `${baseUrl}images/alien-north.png`);
-    assetManager.register("alien-east", `${baseUrl}images/alien-east.png`);
-    assetManager.register("alien-south", `${baseUrl}images/alien-south.png`);
-    assetManager.register("alien-west", `${baseUrl}images/alien-west.png`);
-    assetManager.register("start", `${baseUrl}images/thumbnail.png`);
+    imagesManager.add("alien-north", `${baseUrl}images/alien-north.png`);
+    imagesManager.add("alien-east", `${baseUrl}images/alien-east.png`);
+    imagesManager.add("alien-south", `${baseUrl}images/alien-south.png`);
+    imagesManager.add("alien-west", `${baseUrl}images/alien-west.png`);
+    imagesManager.add("start", `${baseUrl}images/thumbnail.png`);
 
     // Register tilemap static layers
     for(const [idx, layer] of Object.entries(tilemapJSON.tilemap)) {
-        assetManager.register(idx, layer);
+        imagesManager.add(idx, layer);
     }
 
     // Register animation frames
     for(const animation of tilemapJSON.animations) {
         for(const [idx, frame] of Object.entries(animation.frames)){
-            assetManager.register(`${animation.name}${idx}`, tilemapJSON.tileSets[frame.tile.tilesetIdx].tiles[frame.tile.tileIdx]);
+            imagesManager.add(`${animation.name}${idx}`, tilemapJSON.tileSets[frame.tile.tilesetIdx].tiles[frame.tile.tileIdx]);
         }
     }
 
     // Load all assets
-    await assetManager.load();
+    await imagesManager.load();
 }
 
 function createAnimatedTiles() {
@@ -233,11 +236,9 @@ function createAnimatedTiles() {
  * @returns {Promise<void>} A promise that resolves when the static tilemap is drawn.
  */
 async function drawStaticTilemap(ctx) {
-    const assetManager = AssetManager.getInstance();
-
     // Draw static tilemap layers
     for (let i = 0; i < tilemapJSON.tilemap.length; ++i) {
-        const image = assetManager.get(i.toString());
+        const image = imagesManager.get(i.toString());
         ctx.drawImage(image, 0, 0);     
     }
 }

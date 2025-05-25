@@ -4,12 +4,6 @@
 export default class AudioPlayer {
 
     /**
-     * @type {AudioPlayer}
-     * @private
-     */
-    static instance;
-
-    /**
      * @type {boolean}
      * @private
      */
@@ -50,17 +44,6 @@ export default class AudioPlayer {
         this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         this.volumeNode = this.audioCtx.createGain();
         this.volumeNode.connect(this.audioCtx.destination);
-    }
-
-    /**
-     * Using the singleton pattern to return and/or create an application-wide instance of AudioPlayer.
-     * @returns {AudioPlayer} The singleton instance of AudioPlayer.
-     */
-    static getInstance() {
-        if (!AudioPlayer.instance) {
-            AudioPlayer.instance = new AudioPlayer();
-        }
-        return AudioPlayer.instance;
     }
 
     /**

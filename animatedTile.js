@@ -1,5 +1,5 @@
 import { state } from "./main.js";
-import AssetManager from "./AssetManager.js";
+import { imagesManager } from "./main.js";
 
 export default class AnimatedTile {
 
@@ -70,10 +70,8 @@ export default class AnimatedTile {
      * @returns {void} This method does not return anything.
      */
     init() {
-        const assetManager = AssetManager.getInstance();
-
         for (const frame of this._frames) {
-            this._tiles.push(assetManager.get(frame.assetName));
+            this._tiles.push(imagesManager.get(frame.assetName));
         }
     }
 
