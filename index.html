@@ -10,10 +10,11 @@
 
     <body>
         <main id="app">
-            <canvas id="tilemap-dynamic">
-            </canvas>
             <canvas id="tilemap-static">
             </canvas>
+            <canvas id="tilemap-dynamic">
+            </canvas>
+         
             <music-player channel="@love321Nine" playlist="Space"/>
         </main>
         <script type="module" src="/music-player/MusicPlayer.js"></script>
@@ -57,12 +58,16 @@
 
 
             #player-container {
-                position: relative;
+                position: absolute;
+                top: 0;
+                left: 0;
                 width: 100%;
                 height: 100%;
                 background-color: transparent;
                 z-index: 1000;
                 cursor: pointer;
+                        padding: 0;
+                margin: 0;
             }
 
 

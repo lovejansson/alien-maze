@@ -83,6 +83,7 @@ export default class AnimatedTile {
      * @returns {void} This method does not return anything.
      */
     update(elapsed) {
+   
         if (this._lastElapsed === undefined) {
             this._lastElapsed = elapsed;
         } else {
@@ -91,9 +92,13 @@ export default class AnimatedTile {
 
             // Switch tile every frame duration
             if (this._currentMillisecondsDiff >= this._frames[this._currentFrameIdx].duration) {
+
+         
+
                 // Move to the next frame or loop back to the first frame
                 this._currentFrameIdx = this._currentFrameIdx === this._tiles.length - 1 ? 0 : this._currentFrameIdx + 1;
                 this._currentMillisecondsDiff = 0;
+                
             }
         }
     }
@@ -106,8 +111,9 @@ export default class AnimatedTile {
      * @returns {void} This method does not return anything.
      */
     draw(ctx) {
-        const x = this._row * state.tileSize;
-        const y = this._col * state.tileSize;
+
+        const x = this._col * state.tileSize;
+        const y = this._row * state.tileSize;
         ctx.clearRect(x, y, state.tileSize, state.tileSize); // Clear previous frame
 
         // Draw the current frame

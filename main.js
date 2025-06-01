@@ -20,6 +20,7 @@ let isPlaying = false;
 
 let tilemapJSON = null;
 
+
 main();
 
 /**
@@ -29,25 +30,6 @@ main();
  * @returns {Promise<void>} A promise that resolves when the game is initialized.
  */
 async function main() {
-
-    // Test parsiong html to replace the base URL with "/alien-maze/"
-
-    const indexHTML = await fetch("index.html"); 
-
-    if (!indexHTML.ok) {
-        throw new Error(`HTTP error! status: ${indexHTML.status}`);
-    }
-
-
-    const indexHTMLText = await indexHTML.text();
-
-    const finds = indexHTMLText.match(/href="(\/{1})(.*)"/g);
-    console.log(finds);
-   
-    // Replace the base URL in the HTML text
-    const updatedHTMLText = indexHTMLText.replace(/href="(\/)(.*)"/, `href="/alien-maze/$2"`).replace(/src="(\/)(.*)"/, `src="/alien-maze/$2"`);
-    
-    console.log(updatedHTMLText);
 
     const app = document.getElementById("app");
 
@@ -79,11 +61,11 @@ async function main() {
 
     state.width = tilemapJSON.width;
     state.height = tilemapJSON.height;
-    state.tileSize = tilemapJSON.tileSize;
 
+    state.tileSize = tilemapJSON.tileSize;
+    
     const ctxStatic = canvasTilemap.getContext("2d");
     const ctxDynamic = canvasDynamic.getContext("2d");
-
 
     if (!ctxStatic || !ctxDynamic) throw new Error("Canvas rendering context is null");
 
@@ -218,7 +200,7 @@ function createAnimatedTiles() {
                         })), r, c);
                         animatedTile.init();
                         animatedTiles.push(animatedTile);
-                    }
+                    } 
                 }
             }
         }
