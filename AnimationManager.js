@@ -112,7 +112,7 @@ export class AnimationManager {
             // Is sprite sheet
             if (typeof this.playingAnimation.config.frames === "string") {
                 const image = imagesManager.get(this.playingAnimation.config.frames);
-                ctx.drawImage(image, this.playingAnimation.currentIndex * (this.obj.width / 2), 0, this.obj.width / 2, this.obj.height / 2, pos.x || this.obj.pos.x, pos.y || this.obj.pos.y, this.obj.width, this.obj.height);
+                ctx.drawImage(image, this.playingAnimation.currentIndex * (this.obj.width), 0, this.obj.width, this.obj.height, pos.x || this.obj.pos.x, pos.y || this.obj.pos.y, this.obj.width, this.obj.height);
             } else {
                 const image = imagesManager.get(this.playingAnimation.config.frames[this.playingAnimation.currentIndex]);
                 ctx.drawImage(image, this.obj.pos.x, this.obj.pos.y);
