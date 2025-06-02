@@ -97,6 +97,10 @@ async function main() {
 
     play();
 
+    let lastFrameTime = 0;
+    const targetFPS = 60;
+    const frameDuration = 1000 / targetFPS;
+
 
     /**
      * Game loop that continually updates and draws the game state.
@@ -106,6 +110,8 @@ async function main() {
     function play() {
 
             requestAnimationFrame((elapsed) => {
+                  if (elapsed - lastFrameTime >= frameDuration) {
+                        lastFrameTime = elapsed;
                 ctxDynamic.clearRect(0, 0, tilemapJSON.width, tilemapJSON.height);
 
                 if(isPlaying) {
@@ -128,6 +134,7 @@ async function main() {
 
                     ctxDynamic.drawImage(startImage, 0, 0, tilemapJSON.width, tilemapJSON.height);
                 }
+            }
                 play();
             });
          

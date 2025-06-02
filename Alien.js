@@ -84,7 +84,8 @@ export default class Alien {
      * Updates the alien's state, including sprite frame and position.
      */
     update() {
-        // Update position
+
+      // Update position
         this._currentPos = this._getNextPos();
         this._currentPixelDiff++;
 
@@ -102,6 +103,8 @@ export default class Alien {
         } else {
             this._animations.update();
         }
+
+  
     }
 
     /**
@@ -124,6 +127,8 @@ export default class Alien {
     _getNextPos() {
         
         const currentDirection = this._mazePath.getCurrentDirection();
+
+
 
         switch (currentDirection) {
             case "north":

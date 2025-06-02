@@ -137,7 +137,7 @@ export default class MusicPlayer extends HTMLElement {
 
 
     pickSong() {
-        const song = this.songs.random();
+        const song = this.songs.filter(s => s.videoId !== this.youTubePlayer.getVideoData().video_id).random();
         this.youTubePlayer.loadVideoById(song.videoId);
         this.songTitle.textContent = song.title;
     }
