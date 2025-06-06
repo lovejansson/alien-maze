@@ -43,6 +43,7 @@ export default class MusicPlayer extends HTMLElement {
     }
 
     async connectedCallback() {
+        
         if(DEBUG) console.log(`Connected music player element: ${this.getAttribute("channel")} ${this.getAttribute("playlist")}`);
 
         const playerContainer = this.shadowRoot.querySelector("#player-container");
@@ -85,7 +86,7 @@ export default class MusicPlayer extends HTMLElement {
         this.initVolumeControl(DEFAULT_VOLUME);
 
         this.btnPlayPause.addEventListener("click", () => {
-            if (this.youTubePlayer && this.youTubePlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+            if (this.youTubePlayer && [YT.PlayerState.PLAYING, YT.PlayerState.BUFFERING].includes(this.youTubePlayer.getPlayerState())) {
                 this.dispatchEvent(new CustomEvent("pause"));
                 this.pause();
             } else {
@@ -97,7 +98,7 @@ export default class MusicPlayer extends HTMLElement {
         });
 
         playerContainer.addEventListener("click", (e) => {
-            if (this.youTubePlayer && this.youTubePlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+            if (this.youTubePlayer && [YT.PlayerState.PLAYING, YT.PlayerState.BUFFERING].includes(this.youTubePlayer.getPlayerState())) {
                 this.dispatchEvent(new CustomEvent("pause"));
                 this.pause();
             } else {
