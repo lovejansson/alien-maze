@@ -78,6 +78,7 @@ export default class MusicPlayer extends HTMLElement {
                     this.pickSong();
                     playerContainer.style.display = "flex";
                     this.dispatchEvent(new CustomEvent("ready"));
+                    this.pause();
                 } ,
                 'onStateChange': this.handlePlayerStateChange.bind(this),
             },
@@ -87,10 +88,9 @@ export default class MusicPlayer extends HTMLElement {
 
         this.btnPlayPause.addEventListener("click", () => {
             if (this.youTubePlayer && [YT.PlayerState.PLAYING, YT.PlayerState.BUFFERING].includes(this.youTubePlayer.getPlayerState())) {
-                this.dispatchEvent(new CustomEvent("pause"));
                 this.pause();
             } else {
-                this.dispatchEvent(new CustomEvent("play"));
+              
                 this.play();
             }
 
@@ -99,10 +99,8 @@ export default class MusicPlayer extends HTMLElement {
 
         playerContainer.addEventListener("click", (e) => {
             if (this.youTubePlayer && [YT.PlayerState.PLAYING, YT.PlayerState.BUFFERING].includes(this.youTubePlayer.getPlayerState())) {
-                this.dispatchEvent(new CustomEvent("pause"));
                 this.pause();
             } else {
-                this.dispatchEvent(new CustomEvent("play"));
                 this.play();
             }
         });
@@ -152,12 +150,14 @@ export default class MusicPlayer extends HTMLElement {
     play() {
         this.youTubePlayer.playVideo();
         this.btnPlayPause.innerHTML = pauseIcon;
+        this.dispatchEvent(new CustomEvent("play"));
     }
 
 
     pause() {
         this.youTubePlayer.pauseVideo();
         this.btnPlayPause.innerHTML = playIcon;
+        this.dispatchEvent(new CustomEvent("pause"));
     }
 
 
