@@ -2,6 +2,7 @@
 
 import { Art } from "./pim-art/index.js";
 import Play from "./Play.js";
+import Pause from "./Pause.js";
 
 main();
 
@@ -13,10 +14,11 @@ function main() {
 
     const art = new Art({
         play: new Play(),
-        pauseImage:"pause-screen",
+        pause: new Pause(),
         width: 640,
         height: 360,
-        canvasId: "#art-canvas",
+        canvas: "#art-canvas",
+        frameRate: 60
     });
 
     art.play();

@@ -1,5 +1,5 @@
 import MazePath from './MazePath.js';
-import { Sprite, Screen } from './pim-art/index.js';
+import { Sprite, Scene } from './pim-art/index.js';
 
 /**
  * @typedef Direction 
@@ -20,15 +20,15 @@ export default class Alien extends Sprite {
 
    
     /**
-     * @param {Screen} screen The screen on which the alien will be drawn.
+     * @param {Scene} scene The scene on which the alien will be drawn.
      * @param {MazePath} mazePath The maze path the alien will follow.
      */
-    constructor(screen, mazePath) {
-
-        super(screen,  { x: 0, y: 0 }, screen.tilemap.tileSize, screen.tilemap.tileSize);
+    constructor(scene, mazePath) {
+    
+        super(scene,  { x: 0, y: 0 }, scene.tilemap.tileSize, scene.tilemap.tileSize);
 
         this.#mazePath = mazePath;
-
+    this.id = "a"
         this.#currentPixelDiff = 0;
 
         this.animations.create("alien-north", {loop: true, frameRate: 100, frames: "alien-north", numberOfFrames: 4, type: "spritesheet"});
@@ -43,7 +43,7 @@ export default class Alien extends Sprite {
      */
     async init() {
         const startCell = this.#mazePath.getCurrentPathCell();
-        this.pos = { x: startCell.col * this.screen.tilemap.tileSize, y: startCell.row * this.screen.tilemap.tileSize };
+        this.pos = { x: startCell.col * this.scene.tilemap.tileSize, y: startCell.row * this.scene.tilemap.tileSize };
     }
 
     /**
@@ -55,7 +55,7 @@ export default class Alien extends Sprite {
         this.pos = this.#getNextPos();
         this.#currentPixelDiff++;
 
-        if (this.#currentPixelDiff === this.screen.tilemap.tileSize) {
+        if (this.#currentPixelDiff === this.scene.tilemap.tileSize) {
             this.#mazePath.next();
             this.#currentPixelDiff = 0;
         } 
@@ -69,6 +69,7 @@ export default class Alien extends Sprite {
         } else {
             this.animations.update();
         }
+
     }
 
     /**

@@ -1,12 +1,12 @@
-import Screen from "./pim-art/Screen.js";
 import AnimatedTile from './AnimatedTile.js';
 import Alien from './Alien.js';
 import MazePath from './MazePath.js';
 import "./array.js";
 import { createRoadGraph } from './maze.js';
 import {BASE_URL} from "./config.js";
+import { Scene } from "./pim-art/index.js";
 
-export default class Play extends Screen {
+export default class Play extends Scene {
     
     constructor() {
         super();
@@ -25,11 +25,11 @@ export default class Play extends Screen {
         mazePath.init();
         this.alien = new Alien(this, mazePath);
         this.alien.init();
+        this.isInitialized = true;
 
     }
 
     update() {
-
         for(const animatedTile of this.animatedTiles) {
             animatedTile.update();
         }
@@ -44,6 +44,8 @@ export default class Play extends Screen {
         for(const animatedTile of  this.animatedTiles) {
             animatedTile.draw(ctx);
         }
+
+       
 
         this.alien.draw(ctx);
     }
@@ -123,7 +125,6 @@ export default class Play extends Screen {
         this.art.images.add("alien-east", `${BASE_URL}images/alien-east.png`);
         this.art.images.add("alien-south", `${BASE_URL}images/alien-south.png`);
         this.art.images.add("alien-west", `${BASE_URL}images/alien-west.png`);
-        this.art.images.add("pause-screen", `${BASE_URL}images/thumbnail.png`);
 
         for(const [idx, layer] of Object.entries(this.tilemap.tilemap)) {
              this.art.images.add(idx, layer);

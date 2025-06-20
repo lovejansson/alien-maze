@@ -1,3 +1,4 @@
+
 /** 
 * @typedef {import("./objects/Sprite.js").default} Sprite
 */
@@ -150,19 +151,20 @@ export default class AnimationManager {
         if (this.playingAnimation) {
 
             if(this.playingAnimation.config.type === "frames") {
-                const image = this.sprite.screen.art.images.get(this.playingAnimation.config.frames[this.playingAnimation.currentIndex].image);
+                const image = this.sprite.scene.art.images.get(this.playingAnimation.config.frames[this.playingAnimation.currentIndex].image);
+
                 ctx.drawImage(image, 
                     this.playingAnimation.currentIndex * (this.sprite.width), 
                     0, 
                     this.sprite.width, 
                     this.sprite.height, 
                     this.sprite.pos.x, 
-                    this.sprite.pos.y, 
+                   this.sprite.pos.y - (this.sprite.height / 2), 
                     this.sprite.width, 
                     this.sprite.height);
             } else if (this.playingAnimation.config.type === "spritesheet") {
     
-                const image = this.sprite.screen.art.images.get(this.playingAnimation.config.frames);
+                const image = this.sprite.scene.art.images.get(this.playingAnimation.config.frames);
 
                 const frameWidth = image.width / this.playingAnimation.config.numberOfFrames;
 
@@ -172,11 +174,12 @@ export default class AnimationManager {
                     frameWidth,
                     image.height,
                     this.sprite.pos.x,
-                    this.sprite.pos.y - (this.sprite.width / 2), // In the middle of the tile
+                    this.sprite.pos.y - (this.sprite.height / 2), 
                     this.sprite.width,
                     this.sprite.height);
             }
         }
+
     }
 }
 

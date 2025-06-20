@@ -70,7 +70,7 @@ export default class MusicPlayer extends HTMLElement {
         this.btnPlayPause = btnPlayPause;
 
         this.youTubePlayer = new YT.Player(youtubePlayerDiv, {
-            videoId: this.songs.random(),
+            videoId: this.songs.random().videoId,
             height: "1px",
             width: "1px",
             events: {
@@ -90,7 +90,6 @@ export default class MusicPlayer extends HTMLElement {
             if (this.youTubePlayer && [YT.PlayerState.PLAYING, YT.PlayerState.BUFFERING].includes(this.youTubePlayer.getPlayerState())) {
                 this.pause();
             } else {
-              
                 this.play();
             }
 
