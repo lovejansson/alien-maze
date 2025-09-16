@@ -8,9 +8,9 @@ main();
 
 function main() {
 
-    const musicPlayer = document.querySelector("music-player");
+    const musicPlayerEl = document.querySelector("music-player");
 
-    if (!musicPlayer) throw new Error("Missing DOM: music-player");
+    if (!musicPlayerEl) throw new Error("Missing DOM: music-player");
 
     const art = new Art({
         play: new Play(),
@@ -23,13 +23,46 @@ function main() {
 
     art.play();
 
-    musicPlayer.addEventListener("play", () => {
+    musicPlayerEl.addEventListener("play", () => {
         if(!art.isPlaying) art.isPlaying = true;
     });
 
-    musicPlayer.addEventListener("pause", () => {
+    musicPlayerEl.addEventListener("pause", () => {
         if(art.isPlaying) art.isPlaying = false;
     });
+
+    addEventListener("keydown", (e) => {
+    if (e.key === " " || e.key === "Spacebar") {
+        e.preventDefault();
+        togglePlayPause();
+    } else if(e.key === "f" || e.key === "F") {
+        art.enterFullScreen();
+    }
+    });
+
+    /**
+     * Communication from parent document (pimpixels): 
+     * 
+     * F/f keydown events is relayed here via message "enter-fullscreen".
+     * Space keydown events is relayed here via message "toggle-play-pause".
+     * 
+     */
+    addEventListener("message", (event) => {
+        const data = event.data;
+        if(data.action === "toggle-play-pause"){
+            togglePlayPause();
+        } else if (data.action === "enter-fullscreen") {
+            art.enterFullScreen();
+        }
+    });
+
+    function togglePlayPause() {
+    if(musicPlayerEl.isOn()) {
+            musicPlayerEl.pause();
+        } else {
+            musicPlayerEl.play();
+        }
+    }
 
 }
 
