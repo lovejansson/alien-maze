@@ -18,7 +18,7 @@ import ImagesManager from "./ImagesManager.js";
  */
 
 const FRAME_RATE_DEFAULT = 120; 
-const CANVAS_SELECTOR_DEFAULT = "canvas";
+const CANVAS_SELECTOR_DEFAULT = "art-canvas";
 
 /**
  * @description The main class for managing the art piece; switching between the play and pause scenes, loading assets, and managing services like images and audio. 
@@ -67,7 +67,7 @@ export default class Art {
 
     
     enterFullScreen(){
-        const container = document.querySelector(this.config.canvas || CANVAS_SELECTOR_DEFAULT);
+        const container = document.querySelector("body");
 
         if(!container) throw new Error("art container not found");
 
