@@ -13,18 +13,21 @@ html, body {
 
 body {
   background-color: black;
-      display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 #art-container {
     position: relative;
-    aspect-ratio: 640 / 360;
+    aspect-ratio: 16 / 9;
     margin: auto;
     width: 100%;
     height: auto;
 }
 
+/* If screen for device has aspect ratio of 16/9 or bigger the height will take up the full height of the screen 
+and the widths will be automatically sized while filled with black */
 @media screen and (min-aspect-ratio: 16/9){
     #art-container {
         width: auto;
