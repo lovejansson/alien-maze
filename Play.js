@@ -29,6 +29,14 @@ export default class Play extends Scene {
 
     }
 
+    start() {
+        this.art.audio.play("background", true);
+    }
+
+    stop() {
+        this.art.audio.stop("background");
+    }
+
     update() {
         for(const animatedTile of this.animatedTiles) {
             animatedTile.update();
@@ -121,10 +129,10 @@ export default class Play extends Scene {
      */
     async #loadAssets() {
 
-        this.art.images.add("alien-north", `${BASE_URL}images/alien-north.png`);
-        this.art.images.add("alien-east", `${BASE_URL}images/alien-east.png`);
-        this.art.images.add("alien-south", `${BASE_URL}images/alien-south.png`);
-        this.art.images.add("alien-west", `${BASE_URL}images/alien-west.png`);
+        this.art.images.add("alien-north", `${BASE_URL}assets/images/alien-north.png`);
+        this.art.images.add("alien-east", `${BASE_URL}assets/images/alien-east.png`);
+        this.art.images.add("alien-south", `${BASE_URL}assets/images/alien-south.png`);
+        this.art.images.add("alien-west", `${BASE_URL}assets/images/alien-west.png`);
 
         for(const [idx, layer] of Object.entries(this.tilemap.tilemap)) {
              this.art.images.add(idx, layer);
@@ -137,6 +145,10 @@ export default class Play extends Scene {
         }
 
         await  this.art.images.load();
+
+        this.art.audio.add("background", `${BASE_URL}assets/audio/background.wav`);
+
+        await this.art.audio.load();
     }
 
 }

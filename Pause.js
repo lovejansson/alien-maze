@@ -9,7 +9,7 @@ export default class Pause extends Scene {
     }
 
     async init() {
-        this.art.images.add("thumbnail", `${BASE_URL}images/thumbnail.png`);
+        this.art.images.add("thumbnail", `${BASE_URL}assets/images/thumbnail.png`);
         await this.art.images.load();
         this.isInitialized = true;
 

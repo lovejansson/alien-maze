@@ -8,9 +8,9 @@ main();
 
 function main() {
 
-    const musicPlayerEl = document.querySelector("music-player");
+    const audioPlayer = document.querySelector("audio-player");
 
-    if (!musicPlayerEl) throw new Error("Missing DOM: music-player");
+    if (!audioPlayer) throw new Error("Missing DOM: audio-player");
 
     const art = new Art({
         play: new Play(),
@@ -21,14 +21,19 @@ function main() {
         frameRate: 60
     });
 
-    art.play();
+    art.start();
 
-    musicPlayerEl.addEventListener("play", () => {
-        if(!art.isPlaying) art.isPlaying = true;
+    audioPlayer.addEventListener("play", async () => {
+          await art.play();
     });
 
-    musicPlayerEl.addEventListener("pause", () => {
-        if(art.isPlaying) art.isPlaying = false;
+    audioPlayer.addEventListener("pause", async () => {
+        await art.pause();
+
+    });
+
+    audioPlayer.addEventListener("volume", (e) => {
+        art.audio.setVolume(e.detail.volume / 100)
     });
 
     addEventListener("keydown", (e) => {
@@ -53,17 +58,20 @@ function main() {
             togglePlayPause();
         } else if (data.action === "enter-fullscreen") {
             art.enterFullScreen();
+        }  else if(data.action === "art-lost-focus") {
+     
+            if(document.activeElement !== null) document.activeElement.blur();
+           
         }
     });
 
     function togglePlayPause() {
-    if(musicPlayerEl.isOn()) {
-            musicPlayerEl.pause();
+    if(audioPlayer.isOn) {
+            audioPlayer.pause();
         } else {
-            musicPlayerEl.play();
+            audioPlayer.play();
         }
     }
-
 }
 
 
